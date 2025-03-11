@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume ATS Checker</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .container { max-width: 600px; margin-top: 50px; }
+        .preview-box { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Resume ATS Evaluation</h2>
+        <form id="resume-form" enctype="multipart/form-data" method="POST" action="{% url 'upload_resume' %}">
+            {% csrf_token %}
+            <label class="form-label">Select Job Domain:</label>
+            <select id="domain" name="domain" class="form-control" required>
+                <option value="">-- Select Domain --</option>
+                <option value="Data Science">Data Science</option>
+                <option value="Software Development">Software Development</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Cybersecurity">Cybersecurity</option>
+            </select>
+            <small class="text-muted">This helps us check relevant skills.</small>
+        
+            <label class="form-label mt-3">Upload Resume (PDF/DOCX):</label>
+            <input type="file" id="resume" name="resume" class="form-control" accept=".pdf,.docx" required>
+            <small class="text-danger hidden" id="file-error">Invalid file format! Only PDF or DOCX allowed.</small>
+        
+            <div id="preview" class="preview-box hidden mt-3">
+                <h5>File Preview</h5>
+                <p id="file-name"></p>
+            </div>
+        
+            <button type="submit" class="btn btn-primary mt-3 w-100">Upload & Analyze</button>
+        </form>
+        
+
+        <div id="result" class="mt-4 hidden">
+            <h4>Analysis Result</h4>
+            <p><strong>File:</strong> <span id="result-file"></span></p>
+            <p><strong>Match Percentage:</strong> <span id="match-percentage"></span>%</p>
+            <p><strong>Recommended Skills:</strong> <span id="domain-skills"></span></p>
+            <p><strong>ATS Evaluation:</strong> <span id="ats-eval"></span></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("resume").addEventListener("change", function() {
+            const file = this.files[0];
+            if (file && (file.name.endsWith(".pdf") || file.name.endsWith(".docx"))) {
+                document.getElementById("file-error").classList.add("hidden");
+                document.getElementById("file-name").innerText = file.name;
+                document.getElementById("preview").classList.remove("hidden");
+            } else {
+                document.getElementById("file-error").classList.remove("hidden");
+                document.getElementById("preview").classList.add("hidden");
+            }
+        });
+
+        document.getElementById("resume-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch("/upload_resume/", { method: "POST", body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("result-file").innerText = data["File Name"];
+                    document.getElementById("match-percentage").innerText = data["Match Percentage"];
+                    document.getElementById("domain-skills").innerText = data["Domain Skills"];
+                    document.getElementById("ats-eval").innerText = data["ATS Evaluation"];
+                    document.getElementById("result").classList.remove("hidden");
+                });
+        });
+    </script>
+</body>
+</html>

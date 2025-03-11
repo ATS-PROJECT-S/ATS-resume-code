@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS Resume System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: pink;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 50%;
+            text-align: center;
+        }
+        .skills-box, .additional-skills-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .skill-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .skill-label:hover {
+            background-color: #ddd;
+        }
+        .file-list {
+            margin-top: 10px;
+            text-align: left;
+        }
+        .input-box {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .remove-skill {
+            color: red;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .submit-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>ATS Resume System</h2>
+        <label for="domain">Select Domain:</label>
+        <select id="domain" class="input-box" onchange="updateSkills()">
+            <option value="">-- Select Domain --</option>
+            <option value="software">Software Developer</option>
+            <option value="data">Data Analyst</option>
+            <option value="network">Network Engineer</option>
+            <option value="cyber">Cyber Security</option>
+        </select>
+
+        <h3>Required Skills:</h3>
+        <div class="skills-box" id="skillsBox"></div>
+
+        <h3>Additional Skills:</h3>
+        <input type="text" id="additionalSkill" class="input-box" placeholder="Enter additional skills" onkeypress="addSkill(event)">
+        <div class="additional-skills-box" id="additionalSkillsBox"></div>
+
+        <h3>Upload Resumes:</h3>
+        <input type="file" id="fileInput" class="input-box" multiple>
+        <ul id="fileList" class="file-list"></ul>
+
+        <button class="submit-btn" onclick="submitForm()">Submit</button>
+    </div>
+
+    <script>
+        const skillsData = {
+            "software": ["Python", "HTML", "CSS", "JavaScript", "Git", "React", "Node.js"],
+            "data": ["SQL", "Python", "Excel", "Power BI", "Statistics", "Machine Learning"],
+            "network": ["Networking", "CCNA", "Firewall", "Cloud Security", "Linux"],
+            "cyber": ["Ethical Hacking", "Cybersecurity", "Penetration Testing", "Cryptography"]
+        };
+
+        function updateSkills() {
+            const domain = document.getElementById("domain").value;
+            const skillsBox = document.getElementById("skillsBox");
+            skillsBox.innerHTML = "";
+
+            if (skillsData[domain]) {
+                skillsData[domain].forEach(skill => {
+                    let skillElement = document.createElement("label");
+                    skillElement.className = "skill-label";
+                    skillElement.innerHTML = `<input type='checkbox' value='${skill}'> ${skill}`;
+                    skillsBox.appendChild(skillElement);
+                });
+            }
+        }
+
+        function addSkill(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                const additionalSkillInput = document.getElementById("additionalSkill");
+                const additionalSkillsBox = document.getElementById("additionalSkillsBox");
+                let skill = additionalSkillInput.value.trim();
+                if (skill) {
+                    let skillElement = document.createElement("span");
+                    skillElement.className = "skill-label";
+                    skillElement.innerHTML = `${skill} <span class="remove-skill" onclick="removeSkill(this)">×</span>`;
+                    additionalSkillsBox.appendChild(skillElement);
+                    additionalSkillInput.value = "";
+                }
+            }
+        }
+
+        function removeSkill(element) {
+            element.parentElement.remove();
+        }
+
+        document.getElementById("fileInput").addEventListener("change", function(event) {
+            const fileList = document.getElementById("fileList");
+            fileList.innerHTML = "";
+            Array.from(event.target.files).forEach(file => {
+                let listItem = document.createElement("li");
+                listItem.textContent = file.name;
+                fileList.appendChild(listItem);
+            });
+        });
+
+        function submitForm() {
+            const domain = document.getElementById("domain").value;
+            const selectedSkills = Array.from(document.querySelectorAll("#skillsBox input:checked")).map(input => input.value);
+            const additionalSkills = Array.from(document.querySelectorAll(".additional-skills-box .skill-label")).map(skill => skill.textContent.replace("×", "").trim());
+            const uploadedFiles = Array.from(document.getElementById("fileInput").files).map(file => file.name);
+
+            if (!domain) {
+                alert("Please select a domain.");
+                return;
+            }
+            if (uploadedFiles.length === 0) {
+                alert("Please upload at least one resume.");
+                return;
+            }
+
+            const formData = {
+                domain,
+                selectedSkills,
+                additionalSkills,
+                uploadedFiles
+            };
+
+            console.log("Form Submitted:", formData);
+            alert("Form submitted successfully! Check console for details.");
+        }
+    </script>
+</body>
+</html>

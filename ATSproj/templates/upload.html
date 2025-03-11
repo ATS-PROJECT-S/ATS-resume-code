@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Upload - ATS Checker</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    text-align: center;
+    padding: 50px;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 50%;
+    margin: auto;
+}
+
+input, select, button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+}
+
+button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+    </style>
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    let formData = new FormData(this);
+
+    fetch("/upload_resume/", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        let resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = `
+            <h3>Results:</h3>
+            <p><strong>File Name:</strong> ${data["File Name"]}</p>
+            <p><strong>Match Percentage:</strong> ${data["Match Percentage"]}</p>
+            <p><strong>Domain Skills:</strong> ${data["Domain Skills"]}</p>
+            <p><strong>ATS Evaluation:</strong> ${data["ATS Evaluation"]}</p>
+        `;
+    })
+    .catch(error => console.error("Error:", error));
+});
+
+    </script>
+</head>
+<body>
+    <h2>Upload Your Resume for ATS Evaluation</h2>
+
+    <form action="{% url 'upload_resume' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <label for="domain">Enter Job Domain:</label>
+        <input type="text" id="domain" name="domain" required>
+        <br><br>
+
+        <label for="resume">Upload Resume (PDF/DOCX):</label>
+        <input type="file" id="resume" name="resume" accept=".pdf, .docx" required>
+        <br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+</body>
+</html>
