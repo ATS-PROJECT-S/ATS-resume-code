@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS Resume Analysis Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .result-item {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            padding: 15px;
+            text-align: left;
+        }
+
+        .result-item h3 {
+            margin-top: 0;
+            color: #444;
+        }
+
+        .result-item p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .badge.good {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .badge.medium {
+            background-color: #ffc107;
+            color: white;
+        }
+
+        .badge.bad {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .back-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>ATS Resume Analysis Results</h2>
+
+    {% if results %}
+        {% for result in results %}
+            <div class="result-item">
+                <h3>File Name: {{ result.File_Name }}</h3>
+                <p><strong>Match Percentage:</strong> 
+                    <span class="badge {% if result.Match_Percentage|add:0.0 > 75 %}good{% elif result.Match_Percentage|add:0.0 > 50 %}medium{% else %}bad{% endif %}">
+                        {{ result.Match_Percentage }}
+                    </span>
+                </p>
+                
+                <p><strong>Domain Skills:</strong> 
+                    {% if result.Domain_Skills %}
+                        {{ result.Domain_Skills|join:", " }}
+                    {% else %}
+                        <em>No skills detected</em>
+                    {% endif %}
+                </p>
+                <p><strong>ATS Evaluation:</strong> {{ result.ATS_Evaluation }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No results found. Please try uploading your resume again.</p>
+    {% endif %}
+
+    <button class="back-button" onclick="window.history.back()">Go Back</button>
+</div>
+
+</body>
+</html>
